@@ -1,3 +1,5 @@
+REM !!! WARNING! [shutdown] All changes made in your unsaved files will be lost !!!
+
 @ECHO Off
 
 REM			- COMMENT LINE
