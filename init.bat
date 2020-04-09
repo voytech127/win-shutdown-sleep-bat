@@ -13,9 +13,10 @@ CLS
 ECHO.
 ECHO 1. SHUTDOWN
 ECHO 2. CANCEL SHUTDOWN
-ECHO 3. SLEEP MODE
-ECHO 4. CLEAR SCREEN
-ECHO 5. EXIT
+ECHO 3. SLEEP NOW
+ECHO 4. SLEEP TIMER
+ECHO 5. CLEAR SCREEN
+ECHO 6. EXIT
 ECHO.
 SET choice=
 SET /p choice=Type the number for the action:
@@ -24,9 +25,10 @@ REM if not empty take first char only, cut the rest (456 -> 4)
 IF NOT '%choice%'=='' SET choice=%choice:~0,1%
 IF '%choice%'=='1' GOTO SHUTDOWN
 IF '%choice%'=='2' GOTO CANCEL
-IF '%choice%'=='3' GOTO SLEEP
-IF '%choice%'=='4' GOTO CLEAR
-IF '%choice%'=='5' GOTO EXIT
+IF '%choice%'=='3' GOTO SLEEP_NOW
+IF '%choice%'=='4' GOTO SLEEP_TIMER
+IF '%choice%'=='5' GOTO CLEAR
+IF '%choice%'=='6' GOTO EXIT
 
 CLS
 
@@ -46,7 +48,6 @@ REM REM =================== REM
 REM REM perform a "test" shutdown with a large time
 
 REM Tyr shutdown.exe to chk if there is already a shutdown pending if yes error %ERRORLEVEL% will be 1190
-
 shutdown.exe /s /t 999999
 if errorlevel == 1190 (
 	shutdown.exe /a
@@ -62,6 +63,15 @@ if errorlevel == 1190 (
 GOTO START
 REM =================== REM
 
+
+REM shutdown.exe /a
+REM if errorlevel = 1116 (
+	REM ECHO THERE IS NO PENDING SHUTDOWN TO CANCEL
+	REM GOTO START
+REM )else(
+	REM ECHO SHUTDOWN DEACTIVATED!
+	REM GOTO START
+REM )
 
 :SHUTDOWN
 ECHO.
@@ -107,7 +117,7 @@ ECHO.
 ECHO TO CANCEL PRESS 2
 GOTO START
 
-:SLEEP
+:SLEEP_NOW
 CLS
 ECHO.
 ECHO 4. SLEEP MODE ACTIVATED
@@ -116,11 +126,50 @@ ECHO       `RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0`
 RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0
 GOTO START
 
+:SLEEP_TIMER
+REM ======================== REM
+ECHO.
+SET /p input_sek="Hibernate in how many minutes: "
+SET "var="&FOR /f "delims=0123456789" %%i IN ("%minutes%") DO SET var=%%i
+SET /a int=60
+SET /a min=%input_sek%*%int%
+SET /a minutes=%minutes%/%int%
+CLS
+IF DEFINED var (
+	ECHO.
+	ECHO "%var%" IS NOT A VALID
+	GOTO SLEEP_TIMER
+) ELSE (
+
+	COLOR C
+
+	CLS
+	ECHO.
+	ECHO 4. SLEEP MODE ACTIVATED
+	ECHO.
+	ECHO.   To cancel close terminal.
+	ECHO.
+	COLOR 6
+	REM ECHO.   `RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0`
+	ECHO	PC will Hibernate in %minutes% min!
+	ECHO.
+	ECHO.   Time left to Hibernate in seconds:
+	timeout /nobreak /t %min% && RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0
+	
+	COLOR 7
+	GOTO START
+	
+)
+
 :CLEAR
 CLS
 COLOR 7
 GOTO START
-
+REM SET /p number=Set number:
+REM SET "var="&for /f "delims=0123456789" %%i in ("%number%") do set var=%%i
+REM if defined var (ECHO %number% NOT numeric) else (ECHO %number% numeric)
+REM PAUSE
+REM GOTO START
 
 :EXIT
 EXIT
