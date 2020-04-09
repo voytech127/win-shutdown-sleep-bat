@@ -4,7 +4,7 @@ REM !!! WARNING! [shutdown] All changes made in your unsaved files will be lost 
 
 REM			- COMMENT LINE
 REM CLS		- Clear Screen
-REM	ECHO.	- Empty Line
+REM ECHO.	- Empty Line
 REM REM		- Comment
 REM COLOR A	- Change Font Color to Green
 REM EXIT	- Close CMD
@@ -49,12 +49,13 @@ ECHO.
 REM REM =================== REM
 REM REM perform a "test" shutdown with a large time
 
-REM Tyr shutdown.exe to chk if there is already a shutdown pending if yes error %ERRORLEVEL% will be 1190
+REM Try shutdown.exe to check if there is already a shutdown pending if yes error %ERRORLEVEL% will be 1190
 shutdown.exe /s /t 999999
 if errorlevel == 1190 (
 	shutdown.exe /a
 	COLOR A
-	echo SHUTDOWN DEACTIVATED!
+	ECHO.
+	ECHO SHUTDOWN DEACTIVATED!
 	GOTO START
 ) else (
 	REM cancel the "test" shutdown
@@ -65,21 +66,12 @@ if errorlevel == 1190 (
 GOTO START
 REM =================== REM
 
-
-REM shutdown.exe /a
-REM if errorlevel = 1116 (
-	REM ECHO THERE IS NO PENDING SHUTDOWN TO CANCEL
-	REM GOTO START
-REM )else(
-	REM ECHO SHUTDOWN DEACTIVATED!
-	REM GOTO START
-REM )
-
+REM ======================== REM
 :SHUTDOWN
 ECHO.
 ECHO 1. SHUTDOWN
 ECHO.
-SET /p minutes=Shutdown in how many minutes?
+SET /p minutes=Shutdown in how many minutes:
 SET "var="&FOR /f "delims=0123456789" %%i IN ("%minutes%") DO SET var=%%i
 CLS
 IF DEFINED var (
@@ -103,39 +95,42 @@ IF DEFINED var (
 		GOTO EXECUTE_SHUTDOWN:%minutes%
 	)
 )
-:EXECUTE_SHUTDOWN
+REM ======================== REM
 
 REM ======================== REM
+:EXECUTE_SHUTDOWN
 SET int=60
 SET /a hours=%minutes%/%int%
 SET /a mod=%minutes% %% %int%
-ECHO PC will SHUTDOWN in %minutes% min [%hours%hrs	%mod%min]!
+ECHO PC will SHUTDOWN in %minutes% min [ %hours%hrs  %mod%min ]!
 SET /a "minutes=%minutes%*%int%"
 COLOR C
 ECHO       `shutdown.exe /s /f /t %minutes%`
 shutdown.exe /s /f /t %minutes%
-REM ======================== REM
 ECHO.
-ECHO TO CANCEL PRESS 2
+ECHO.	TO CANCEL PRESS 2
 GOTO START
+REM ======================== REM
 
+REM ======================== REM
 :SLEEP_NOW
 CLS
 ECHO.
 ECHO 4. SLEEP MODE ACTIVATED
 ECHO.
-ECHO       `RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0`
+ECHO `RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0`
 RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0
 GOTO START
-
-:SLEEP_TIMER
 REM ======================== REM
+
+REM ======================== REM
+:SLEEP_TIMER
 ECHO.
 SET /p input_sek="Hibernate in how many minutes: "
-SET "var="&FOR /f "delims=0123456789" %%i IN ("%minutes%") DO SET var=%%i
+SET "var="&FOR /f "delims=0123456789" %%i IN ("%input_sek%") DO SET var=%%i
 SET /a int=60
 SET /a min=%input_sek%*%int%
-SET /a minutes=%minutes%/%int%
+SET /a minutes=%min%/%int%
 CLS
 IF DEFINED var (
 	ECHO.
@@ -143,35 +138,32 @@ IF DEFINED var (
 	GOTO SLEEP_TIMER
 ) ELSE (
 
-	COLOR C
+	COLOR 3
 
 	CLS
 	ECHO.
 	ECHO 4. SLEEP MODE ACTIVATED
 	ECHO.
-	ECHO.   To cancel close terminal.
+	ECHO.	To cancel close Comamand Prompt or CTRL + C.
 	ECHO.
-	COLOR 6
-	REM ECHO.   `RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0`
-	ECHO	PC will Hibernate in %minutes% min!
+	ECHO.	PC will Hibernate in %minutes% min!
 	ECHO.
-	ECHO.   Time left to Hibernate in seconds:
+	ECHO.	Time left to Hibernate in seconds:
 	timeout /nobreak /t %min% && RUNDLL32.EXE powrprof.dll,SetSuspendState 0,1,0
 	
 	COLOR 7
 	GOTO START
 	
 )
+REM ======================== REM
+
+REM ======================== REM
 
 :CLEAR
 CLS
 COLOR 7
 GOTO START
-REM SET /p number=Set number:
-REM SET "var="&for /f "delims=0123456789" %%i in ("%number%") do set var=%%i
-REM if defined var (ECHO %number% NOT numeric) else (ECHO %number% numeric)
-REM PAUSE
-REM GOTO START
+
 
 :EXIT
 EXIT
